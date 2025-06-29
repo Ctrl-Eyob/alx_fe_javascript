@@ -48,6 +48,20 @@
      <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" />
      <button onclick="exportToJsonFile()">Export Quotes</button>
     </div>
+<h2>Category Filter</h2>
+ <div>
+  <select id="categoryFilter" onchange="filterQuotes()">
+    <!-- Categories will be added here -->
+  </select>
+ </div>
+
+ <h2>Random Quote Generator</h2>
+ <div>
+  <button id="newQuote">Show New Quote</button>
+ </div>
+
+ <div id="quoteDisplay"></div>
+
 
   <script src="script.js"></script>
 </body>
