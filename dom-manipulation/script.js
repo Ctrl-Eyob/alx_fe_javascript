@@ -43,7 +43,7 @@ function populateCategories() {
 
 // Filter quotes and display random one
 function filterQuotes() {
-  const selected = document.getElementById('categoryFilter').value;
+const selectedCategory = document.getElementById('categoryFilter').value;
   localStorage.setItem('lastFilter', selected); // Save preference
 
   const filtered = selected === "all"
