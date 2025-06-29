@@ -153,3 +153,79 @@ window.onload = function () {
     document.getElementById('quoteDisplay').textContent = lastQuote;
   }
 };
+
+// Simulated server data
+const fakeServer = {
+  quotes: [
+    { text: "Success is not final, failure is not fatal.", category: "Success" },
+    { text: "In the middle of difficulty lies opportunity.", category: "Challenge" }
+  ],
+
+  // Simulate fetching quotes (e.g., from cloud)
+  fetchQuotes: function () {
+    return new Promise(resolve => {
+      setTimeout(() => resolve([...this.quotes]), 1000); // Simulate 1s delay
+    });
+  },
+
+  // Simulate saving quotes to the server
+  saveQuotes: function (newQuotes) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        this.quotes = [...newQuotes];
+        resolve(true);
+      }, 500);
+    });
+  }
+};
+
+function syncWithServer() {
+  fakeServer.fetchQuotes().then(serverQuotes => {
+    const localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
+
+    // Simple conflict check: if different, update from server
+    const isDifferent = JSON.stringify(serverQuotes) !== JSON.stringify(localQuotes);
+
+    if (isDifferent) {
+      localStorage.setItem('quotes', JSON.stringify(serverQuotes));
+      quotes = [...serverQuotes];
+      populateCategories();
+      showConflictNotice("Quotes were updated from the server.");
+    }
+  });
+}
+
+// Show conflict notification in UI
+function showConflictNotice(message) {
+  let notice = document.getElementById('conflictNotice');
+  if (!notice) {
+    notice = document.createElement('div');
+    notice.id = 'conflictNotice';
+    notice.style.background = '#ffcccc';
+    notice.style.padding = '10px';
+    notice.style.margin = '10px';
+    notice.style.border = '1px solid #ff0000';
+    document.body.insertBefore(notice, document.body.firstChild);
+  }
+  notice.textContent = message;
+}
+
+// Start periodic sync
+function startSyncInterval() {
+  setInterval(syncWithServer, 30000); // every 30 seconds
+}
+
+window.onload = function () {
+  loadQuotes();
+  createAddQuoteForm();
+  populateCategories();
+  document.getElementById('newQuote').addEventListener('click', filterQuotes);
+
+  const lastQuote = sessionStorage.getItem('lastQuote');
+  if (lastQuote) {
+    document.getElementById('quoteDisplay').textContent = lastQuote;
+  }
+
+  // Start periodic sync
+  startSyncInterval();
+};
