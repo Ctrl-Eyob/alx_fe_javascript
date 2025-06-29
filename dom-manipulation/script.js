@@ -59,3 +59,31 @@ document.getElementById('newQuote').addEventListener('click', showRandomQuote);
 
 // Initialize categories on load
 updateCategories();
+// Dynamically create the Add Quote Form
+function createAddQuoteForm() {
+  const formContainer = document.getElementById('formContainer');
+
+  const quoteInput = document.createElement('input');
+  quoteInput.id = 'newQuoteText';
+  quoteInput.type = 'text';
+  quoteInput.placeholder = 'Enter a new quote';
+
+  const categoryInput = document.createElement('input');
+  categoryInput.id = 'newQuoteCategory';
+  categoryInput.type = 'text';
+  categoryInput.placeholder = 'Enter quote category';
+
+  const addButton = document.createElement('button');
+  addButton.textContent = 'Add Quote';
+  addButton.addEventListener('click', addQuote);
+
+  // Clear container and append elements
+  formContainer.innerHTML = '';
+  formContainer.appendChild(quoteInput);
+  formContainer.appendChild(categoryInput);
+  formContainer.appendChild(addButton);
+}
+
+// Initialize categories and form on load
+updateCategories();
+createAddQuoteForm();
