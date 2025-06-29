@@ -1,17 +1,17 @@
 let quotes = [];
 
-// ✅ Required: Fetch quotes from a real API using async/await
+// ✅ FETCH from placeholder API (required)
 async function fetchQuotesFromServer() {
   try {
     const response = await fetch("https://jsonplaceholder.typicode.com/posts");
     const data = await response.json();
-    
-    // Convert API data to quote format
+
+    // Convert to quote format
     const formatted = data.slice(0, 10).map(post => ({
       text: post.title,
       category: "Server"
     }));
-    
+
     return formatted;
   } catch (error) {
     console.error("Failed to fetch from server:", error);
@@ -19,7 +19,25 @@ async function fetchQuotesFromServer() {
   }
 }
 
-// Load quotes from localStorage
+// ✅ POST to placeholder API (required)
+async function postQuoteToServer(quote) {
+  try {
+    const response = await fetch("https://jsonplaceholder.typicode.com/posts", {
+      method: "POST", // ✅ required
+      headers: {
+        "Content-Type": "application/json" // ✅ required
+      },
+      body: JSON.stringify(quote)
+    });
+
+    const data = await response.json();
+    console.log("Quote posted to server:", data);
+  } catch (error) {
+    console.error("Failed to post quote:", error);
+  }
+}
+
+// Load from localStorage
 function loadQuotes() {
   const stored = localStorage.getItem('quotes');
   if (stored) {
@@ -33,13 +51,13 @@ function loadQuotes() {
   }
 }
 
-// Save quotes and refresh UI
+// Save and update UI
 function saveQuotes() {
   localStorage.setItem('quotes', JSON.stringify(quotes));
   populateCategories();
 }
 
-// Populate category dropdown
+// Populate categories
 function populateCategories() {
   const filterDropdown = document.getElementById('categoryFilter');
   const categories = ["all", ...new Set(quotes.map(q => q.category))];
@@ -59,7 +77,7 @@ function populateCategories() {
   }
 }
 
-// Show a quote based on category
+// Show a filtered quote
 function filterQuotes() {
   const selectedCategory = document.getElementById('categoryFilter').value;
   localStorage.setItem('lastFilter', selectedCategory);
@@ -82,7 +100,7 @@ function filterQuotes() {
   sessionStorage.setItem('lastQuote', display);
 }
 
-// Add new quote
+// ✅ Add new quote and POST it
 function addQuote() {
   const text = document.getElementById('newQuoteText').value.trim();
   const category = document.getElementById('newQuoteCategory').value.trim();
@@ -92,15 +110,18 @@ function addQuote() {
     return;
   }
 
-  quotes.push({ text, category });
+  const newQuote = { text, category };
+
+  quotes.push(newQuote);
   saveQuotes();
+  postQuoteToServer(newQuote); // ✅ Post to server
 
   document.getElementById('newQuoteText').value = '';
   document.getElementById('newQuoteCategory').value = '';
-  alert("Quote added!");
+  alert("Quote added and sent to server!");
 }
 
-// Create dynamic form
+// Create form
 function createAddQuoteForm() {
   const container = document.getElementById('formContainer');
 
@@ -122,7 +143,7 @@ function createAddQuoteForm() {
   container.appendChild(button);
 }
 
-// ✅ Sync with server using await and notify user
+// ✅ Sync quotes from server
 async function syncWithServer() {
   const serverQuotes = await fetchQuotesFromServer();
   const localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
@@ -137,7 +158,7 @@ async function syncWithServer() {
   }
 }
 
-// Notify user on conflict/sync
+// UI notification
 function showConflictNotice(message) {
   let notice = document.getElementById('conflictNotice');
   if (!notice) {
@@ -152,12 +173,12 @@ function showConflictNotice(message) {
   notice.textContent = message;
 }
 
-// Periodic sync every 30 seconds
+// Periodic sync
 function startSyncInterval() {
   setInterval(syncWithServer, 30000);
 }
 
-// Export quotes to JSON
+// Export to JSON
 function exportToJsonFile() {
   const data = JSON.stringify(quotes, null, 2);
   const blob = new Blob([data], { type: 'application/json' });
@@ -170,7 +191,7 @@ function exportToJsonFile() {
   URL.revokeObjectURL(url);
 }
 
-// Import quotes from JSON
+// Import from JSON
 function importFromJsonFile(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -193,7 +214,7 @@ function importFromJsonFile(event) {
   reader.readAsText(file);
 }
 
-// On page load
+// Load everything
 window.onload = function () {
   loadQuotes();
   createAddQuoteForm();
@@ -206,6 +227,6 @@ window.onload = function () {
     document.getElementById('quoteDisplay').textContent = lastQuote;
   }
 
-  syncWithServer();       // Initial sync
-  startSyncInterval();    // Periodic sync
+  syncWithServer();
+  startSyncInterval();
 };
