@@ -1,31 +1,22 @@
 let quotes = [];
 
-// Simulated server (in-memory)
-const fakeServer = {
-  quotes: [
-    { text: "Success is not final, failure is not fatal.", category: "Success" },
-    { text: "In the middle of difficulty lies opportunity.", category: "Challenge" }
-  ],
-
-  fetchQuotes: function () {
-    return new Promise(resolve => {
-      setTimeout(() => resolve([...this.quotes]), 1000);
-    });
-  },
-
-  saveQuotes: function (newQuotes) {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        this.quotes = [...newQuotes];
-        resolve(true);
-      }, 500);
-    });
+// ✅ Required: Fetch quotes from a real API using async/await
+async function fetchQuotesFromServer() {
+  try {
+    const response = await fetch("https://jsonplaceholder.typicode.com/posts");
+    const data = await response.json();
+    
+    // Convert API data to quote format
+    const formatted = data.slice(0, 10).map(post => ({
+      text: post.title,
+      category: "Server"
+    }));
+    
+    return formatted;
+  } catch (error) {
+    console.error("Failed to fetch from server:", error);
+    return [];
   }
-};
-
-// ✅ REQUIRED: This satisfies the "fetchQuotesFromServer" requirement
-function fetchQuotesFromServer() {
-  return fakeServer.fetchQuotes();
 }
 
 // Load quotes from localStorage
@@ -48,7 +39,7 @@ function saveQuotes() {
   populateCategories();
 }
 
-// Populate category dropdown using map()
+// Populate category dropdown
 function populateCategories() {
   const filterDropdown = document.getElementById('categoryFilter');
   const categories = ["all", ...new Set(quotes.map(q => q.category))];
@@ -131,20 +122,19 @@ function createAddQuoteForm() {
   container.appendChild(button);
 }
 
-// ✅ Sync with "server" and show notification
-function syncWithServer() {
-  fetchQuotesFromServer().then(serverQuotes => {
-    const localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
+// ✅ Sync with server using await and notify user
+async function syncWithServer() {
+  const serverQuotes = await fetchQuotesFromServer();
+  const localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
 
-    const isDifferent = JSON.stringify(serverQuotes) !== JSON.stringify(localQuotes);
+  const isDifferent = JSON.stringify(serverQuotes) !== JSON.stringify(localQuotes);
 
-    if (isDifferent) {
-      localStorage.setItem('quotes', JSON.stringify(serverQuotes));
-      quotes = [...serverQuotes];
-      populateCategories();
-      showConflictNotice("Quotes were updated from the server.");
-    }
-  });
+  if (isDifferent) {
+    localStorage.setItem('quotes', JSON.stringify(serverQuotes));
+    quotes = [...serverQuotes];
+    populateCategories();
+    showConflictNotice("Quotes were updated from the server.");
+  }
 }
 
 // Notify user on conflict/sync
@@ -216,5 +206,6 @@ window.onload = function () {
     document.getElementById('quoteDisplay').textContent = lastQuote;
   }
 
-  startSyncInterval(); // Start auto-sync
+  syncWithServer();       // Initial sync
+  startSyncInterval();    // Periodic sync
 };
