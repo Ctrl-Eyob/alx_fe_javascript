@@ -213,3 +213,23 @@ function createAddQuoteForm() {
   container.appendChild(categoryInput);
   container.appendChild(button);
 }
+
+async function fetchQuotesFromServer() {
+  try {
+    const response = await fetch("https://jsonplaceholder.typicode.com/posts");
+    const data = await response.json();
+
+    // Convert API posts to quotes format
+    const formattedQuotes = data.slice(0, 10).map(function(post) {
+      return {
+        text: post.title,
+        category: "Server"
+      };
+    });
+
+    return formattedQuotes;
+  } catch (error) {
+    console.error("Failed to fetch quotes from server:", error);
+    return [];
+  }
+}
