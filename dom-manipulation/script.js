@@ -249,3 +249,23 @@ async function postQuoteToServer(quote) {
     console.error("Failed to post quote:", error);
   }
 }
+
+async function syncQuotes() {
+  try {
+    const serverQuotes = await fetchQuotesFromServer();
+    const localQuotes = JSON.parse(localStorage.getItem("quotes")) || [];
+
+    // Compare server and local quotes
+    const isDifferent = JSON.stringify(serverQuotes) !== JSON.stringify(localQuotes);
+
+    if (isDifferent && serverQuotes.length > 0) {
+      quotes = [...serverQuotes];
+      localStorage.setItem("quotes", JSON.stringify(quotes));
+      populateCategories();
+      filterQuotes();
+      showConflictNotice("Quotes were updated from the server.");
+    }
+  } catch (error) {
+    console.error("Failed to sync quotes:", error);
+  }
+}
