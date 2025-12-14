@@ -193,3 +193,23 @@ document
 populateCategories();
 filterQuotes();
 showRandomQuote();
+function createAddQuoteForm() {
+  var container = document.getElementById("formContainer");
+
+  var quoteInput = document.createElement("input");
+  quoteInput.id = "newQuoteText";
+  quoteInput.placeholder = "Enter a new quote";
+
+  var categoryInput = document.createElement("input");
+  categoryInput.id = "newQuoteCategory";
+  categoryInput.placeholder = "Enter quote category";
+
+  var button = document.createElement("button");
+  button.textContent = "Add Quote";
+  button.addEventListener("click", addQuote);
+
+  container.innerHTML = "";
+  container.appendChild(quoteInput);
+  container.appendChild(categoryInput);
+  container.appendChild(button);
+}
