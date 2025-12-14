@@ -106,3 +106,7 @@ function showRandomQuote() {
   var randomIndex = Math.floor(Math.random() * filteredQuotes.length);
   quoteDisplay.textContent = '"' + filteredQuotes[randomIndex].text + '"';
 }
+
+
+// storage
+localStorage.setItem("quotes", JSON.stringify(quotes));
